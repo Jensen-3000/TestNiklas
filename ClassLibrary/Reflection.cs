@@ -1,12 +1,10 @@
-﻿using System.Data.SqlTypes;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace ClassLibrary;
 
 public class Reflection
 {
-
-    public string ReflectionInsertInto(object obj)
+    public string ReflectionInsertInto(Bus obj)
     {
         var type = obj.GetType();
         PropertyInfo[] properties = type.GetProperties();
@@ -31,49 +29,12 @@ public class Reflection
         return sql;
     }
 
-    //public string ReflectionInsertInto(List<Bus> buses)
-    //{
-    //    //var type = bus.GetType();
-    //    //PropertyInfo[] properties = type.GetProperties();
-
-    //    string table = "";
-    //    string columns = "";
-    //    string values = "";
-    //    string sql = "";
-
-    //    foreach (var bus in buses)
-    //    {
-    //        bus.GetType().GetProperties();
-    //        var items = bus.GetType();
-    //        var busprop = items.GetProperties();
-
-    //        foreach (var item in busprop)
-    //        {
-    //            if (item.Name != "Id")
-    //            {
-    //                columns += $"{item.Name}, ";
-    //                values += $"'{item.GetValue(bus)}', ";
-    //            }
-    //        }
-
-    //        table = items.Name;
-    //        columns = columns.TrimEnd(',', ' ');
-    //        values = values.TrimEnd(',', ' ');
-
-    //        sql = $"INSERT INTO {table} ({columns}) VALUES ({values})";
-    //    }
-    //    return sql;
-    //    // Maybe use ToLower() as the table names could be a different case, compared to the Db
-
-    //}
-
-    public string ReflectionInsertInto(List<Bus> obj)
+    public string ReflectionInsertInto(List<Bus> obj, bool useId)
     {
         string table = "";
         string sql = "";
         string columns = "";
         string values = "";
-        string value = "";
 
         foreach (var item in obj)
         {
@@ -81,21 +42,23 @@ public class Reflection
             PropertyInfo[] properties = type.GetProperties();
 
             table = type.Name;
-
+            values += "(";
             foreach (var property in properties)
             {
-                if (property.Name != "Id")
+                if (property.Name != "Id" || useId)
                 {
-                    columns += $"{property.Name}, ";
+                    if (!columns.Contains(property.Name))
+                        columns += $"{property.Name}, ";
                     values += $"'{property.GetValue(item)}', ";
                 }
             }
+            values = values.TrimEnd(',', ' ');
+            values += "),";
         }
         columns = columns.TrimEnd(',', ' ');
-        values = values.TrimEnd(',', ' ');
-
+        values = values.TrimEnd(',');
         // Maybe use ToLower() as the table names could be a different case, compared to the Db
-        sql = $"INSERT INTO {table} ({columns}) VALUES ({values})";
+        sql = $"INSERT INTO {table} ({columns}) VALUES {values}";
         return sql;
     }
 }

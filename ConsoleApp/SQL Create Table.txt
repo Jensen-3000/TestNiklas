@@ -1,0 +1,5 @@
+﻿CREATE TABLE [dbo].[Bus] (
+    [Id]             INT     IDENTITY      NOT NULL,
+    [Color]          NVARCHAR (40) NULL,
+    [milesEachGalon] INT           NULL
+);
